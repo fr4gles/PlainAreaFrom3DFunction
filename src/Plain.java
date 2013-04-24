@@ -9,16 +9,17 @@ import java.util.Set;
 
 
 /**
- *
- * @author Michal Franczyk
- */
-
-/**
  * Klasa porównująca po zmiennej: z
  * @author Michal
  */
 class CompareByZ implements Comparator<Point3D> 
 {
+    /**
+     * komparator
+     * @param o1 obiekt 1
+     * @param o2 obiekt 2
+     * @return wynik
+     */
     @Override
     public int compare(Point3D o1, Point3D o2) 
     {
@@ -32,12 +33,19 @@ class CompareByZ implements Comparator<Point3D>
  */
 class CompareByAngle implements Comparator<Point2D> 
 {
+    /**
+     * komparator
+     * @param o1 obiekt 1
+     * @param o2 obiekt 2
+     * @return wynik
+     */
     @Override
     public int compare(Point2D o1, Point2D o2) 
     {
         return o1.Angle.compareTo(o2.Angle);
     }
 }
+
 
 /**
  * Klasa oslugujaca dane, które są następnie przekazane do
@@ -49,7 +57,7 @@ public class Plain
     /**
      * lista wczytanych punktów w 3D
      */
-    public Point3D[] points3D;  
+    private Point3D[] points3D;  
     
     /**
      * lista zawierająca listy punktów podzielone na grupy wględem z
@@ -74,25 +82,25 @@ public class Plain
      */
     public void prepare()
     {
-        Arrays.sort(points3D, new CompareByZ());
+        Arrays.sort(getPoints3D(), new CompareByZ());
         
         Set<Integer> s = new HashSet<Integer>();
-        for (Point3D i : points3D)
+        for (Point3D i : getPoints3D())
             s.add(i.Z);
                 
         splitedPoints.add(new ArrayList<Point2D>());
         List<Integer> zety = new ArrayList<>(s);
         
         int k=0;
-        for(int i=0;i<points3D.length;++i)
+        for(int i=0;i<getPoints3D().length;++i)
         {
-            if(points3D[i].Z.equals(zety.get(k)))
-                splitedPoints.get(k).add(new Point2D(points3D[i].X, points3D[i].Y));
+            if(getPoints3D()[i].Z.equals(zety.get(k)))
+                splitedPoints.get(k).add(new Point2D(getPoints3D()[i].X, getPoints3D()[i].Y));
             else
             {
                 k++;
                 splitedPoints.add(new ArrayList<Point2D>());
-                splitedPoints.get(k).add(new Point2D(points3D[i].X, points3D[i].Y));
+                splitedPoints.get(k).add(new Point2D(getPoints3D()[i].X, getPoints3D()[i].Y));
             }
         }
     }
@@ -121,8 +129,23 @@ public class Plain
         }
         return result;
     }
-}
 
+    /**
+     * @return the points3D
+     */
+    public Point3D[] getPoints3D()
+    {
+        return points3D;
+    }
+
+    /**
+     * @param points3D the points3D to set
+     */
+    public void setPoints3D(Point3D[] points3D)
+    {
+        this.points3D = points3D;
+    }
+}
 /**
  * Klasa obliczajaca pole nieregularnego poligonu zlozonego z pkt 2D
  * @author Michal
@@ -277,7 +300,7 @@ class QuickHullAlgorithm
 		left = i;
 	}
 
-        if(Main.Test)
+        if(Main.getTest())
             System.out.println("l: "+left+", r: "+right);
 
 	List<Integer> aLeft1 = new ArrayList<Integer>();
@@ -372,7 +395,7 @@ class QuickHullAlgorithm
      */
     private void QuickHull(int a, int b, List<Integer> al)
     {
-	if(Main.Test)
+	if(Main.getTest())
             System.out.println("a:"+a+",b:"+b+" size: "+al.size());
 	
         if ( al.size() == 0 )
