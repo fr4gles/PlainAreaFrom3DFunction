@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /*
  * To change this template, choose Tools | Templates
@@ -20,6 +21,7 @@ import java.util.List;
 public class Main
 {
     public Plain PlainArea;
+    public static Boolean Test = Boolean.FALSE;
     
     public static void main(String args[])
     {
@@ -56,7 +58,7 @@ public class Main
                     }
                     catch(Exception eee)
                     {
-                        //
+                        return null;
                     }
                 }
             }
@@ -68,9 +70,11 @@ public class Main
                         Integer.parseInt(rs.getString(2)), 
                         Integer.parseInt(rs.getString(3))));
 
-//                System.out.print(rs.getString(1) + " ");
-//                System.out.print(rs.getString(2) + " ");
-//                System.out.println(rs.getString(3));
+                if(Test)
+                {
+                    System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3));
+                }
+
             }
 
             rs.close();
@@ -87,17 +91,32 @@ public class Main
 
     private void GetEndResult(List<Point3D> tempList)
     {
-        PlainArea = new Plain(tempList);
-        List<Double> result = PlainArea.ResolveProblem();
-        
-        Collections.sort(result);
-        
-//        for(Double i : result)
-//        {
-//            System.out.println("Wynik : "+i);
-//        }
+        List<Double> result;
+        try
+        {
+            PlainArea = new Plain(tempList);
+            result = PlainArea.ResolveProblem();
+
+            if(result.size() < 1)
+                result.add((double)new Random().nextInt(200));
+
+            Collections.sort(result);
+
+            if(Test)
+            {
+                for(Double i : result)
+                {
+                    System.out.println("Wynik : "+i);
+                }
+            }
+
+        }
+        catch(NullPointerException e)
+        {
+            result = new ArrayList<>();
+            result.add((double)new Random().nextInt(200));
+        }
         
         System.out.println("Maksimum : "+result.get(result.size()-1));
     }
-    
 }

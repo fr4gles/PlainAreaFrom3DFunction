@@ -1,13 +1,15 @@
+use ztp;
+
 drop table ftable;
 
-CREATE TABLE ftable ( 
+CREATE TABLE fttable ( 
  x int NOT NULL, 
  y int NOT NULL, 
  z int NOT NULL,
  PRIMARY KEY (x,y)
 )
 
-INSERT INTO ftable (x, y, z) VALUES
+INSERT INTO fttable (x, y, z) VALUES
 (1, 1, 1),
 (1, 2, 1),
 (1, 3, 3),

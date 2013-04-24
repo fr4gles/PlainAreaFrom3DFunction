@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.Set;
 
 
-
-
-
 /**
  *
- * @author Michal
+ * @author Michal Franczyk
  */
 
+/**
+ * Klasa porównująca po zmiennej: z
+ * @author Michal
+ */
 class CompareByZ implements Comparator<Point3D> 
 {
     @Override
@@ -25,6 +26,10 @@ class CompareByZ implements Comparator<Point3D>
     }
 }
 
+/**
+ * Klasa porównująca po zmiennej: kąt nachylenie 
+ * @author Michal
+ */
 class CompareByAngle implements Comparator<Point2D> 
 {
     @Override
@@ -34,27 +39,39 @@ class CompareByAngle implements Comparator<Point2D>
     }
 }
 
+/**
+ * Klasa oslugujaca dane, które są następnie przekazane do
+ * rozwiązania właściwym algorytmem
+ * @author Michal
+ */
 public class Plain
 {
-    public Point3D[] points3D;
+    /**
+     * lista wczytanych punktów w 3D
+     */
+    public Point3D[] points3D;  
+    
+    /**
+     * lista zawierająca listy punktów podzielone na grupy wględem z
+     */
     List<List<Point2D>> splitedPoints;
     
+    /**
+     * konstruktor inicjalizujacy
+     * @param points punkty 3D
+     */
     public Plain(List<Point3D> points)
     {
         this.points3D = points.toArray(new Point3D[points.size()]);
         splitedPoints = new ArrayList<>();
     }
     
-    public Integer find(List<Integer> arr, int numToFind) 
-    {
-	Integer occurence=0;
-	for (int i = 0; i < arr.size(); i++)  
-            if (arr.get(i) == numToFind)
-                occurence++;
-        
-	return occurence;
-}
-    
+    /**
+     * funkcja przygotowujaca dane 
+     * dzieli punkty podane w 3D wzgledem 
+     * punktow z
+     * zgodnie z instrukcja podana w zadaniu
+     */
     public void prepare()
     {
         Arrays.sort(points3D, new CompareByZ());
@@ -80,6 +97,10 @@ public class Plain
         }
     }
     
+    /**
+     * Funkcja obslugujaca rozwiazanie problemu
+     * @return liste pól danych obszarow zlozonych z punktow
+     */
     public List<Double> ResolveProblem()
     {
         prepare();
@@ -89,27 +110,49 @@ public class Plain
         List<Double> result = new ArrayList<>();
         for( List<Point2D> i: splitedPoints )
         {
-            qh = new QuickHullAlgorithm(i);
-            qh.go();
-            ip = new IrregularPolygonArea(i);
-            result.add(ip.Resolve());
+            double polePoligonu = 0.0;
+            if(i.size() > 2)
+            {
+                qh = new QuickHullAlgorithm(i);
+                qh.go();
+                ip = new IrregularPolygonArea(i);
+                result.add(ip.Resolve());
+            }
         }
         return result;
     }
 }
 
-
+/**
+ * Klasa obliczajaca pole nieregularnego poligonu zlozonego z pkt 2D
+ * @author Michal
+ */
 class IrregularPolygonArea
 {
+    /**
+     * tablica punktow
+     */
     public Point2D[] points;
+    
+    /**
+     * pole poligonu
+     */
     Double AreaOfPolygon;
 
+    /**
+     * konsktruktor inicjalizujacy
+     * @param points punkty wejsciowe z ktorym bedzie liczone pole
+     */
     public IrregularPolygonArea(List<Point2D> points)
     {
         this.points = points.toArray(new Point2D[points.size()]);
         AreaOfPolygon = 0.0;
     }
     
+    /**
+     * funkcja oblugujaca rozwiazywanie problemu - pole poligonu
+     * @return 
+     */
     public double Resolve()
     {
         SortCornersInCounterClockwiseDirection();
@@ -117,6 +160,10 @@ class IrregularPolygonArea
         return AreaOfPolygon;
     }
     
+    /**
+     * sortowanie podanych punktow względem pkt środkowego
+     * godnie z ruchem wskazowek zegara
+     */
     private void SortCornersInCounterClockwiseDirection()
     {
         int n = points.length;
@@ -144,6 +191,10 @@ class IrregularPolygonArea
         points = newPoints.toArray(new Point2D[newPoints.size()]);
     }
     
+    /**
+     * Obliczanie pola poligonu
+     * @return pole poligonu
+     */
     private double PolygonArea()
     {
         int n = points.length;
@@ -163,31 +214,57 @@ class IrregularPolygonArea
     }
 }
 
-
+/**
+ * klasa reprezentujaca algorytm quickhull
+ * więcej o nim: https://pl.wikipedia.org/wiki/Quickhull
+ * @author Michal
+ */
 class QuickHullAlgorithm
 {
+    /**
+     * punkty wejsciowe
+     */
     public Point2D[] points;
-    public Point2D[] reservePoints;
+    
+    /**
+     * punkty wynikowe
+     * otoczka ...
+     */
+    public Point2D[] resultPoints;
+    
+    /**
+     * zmienna pomocnicza 
+     * okresla indeks w tablicy pod ktory algorytm ma wspisac roziwiazanie
+     */
     public int num;
 
+    /**
+     * konstruktor inicjalizujacy
+     * @param points 
+     */
     public QuickHullAlgorithm(List<Point2D> points)
     {
         this.points = points.toArray(new Point2D[points.size()]);
-        reservePoints = new Point2D[this.points.length];
+        resultPoints = new Point2D[this.points.length];
         
-        Arrays.fill(reservePoints, new Point2D(0, 0, 0.0));
-        
+        Arrays.fill(resultPoints, new Point2D(0, 0, 0.0));
     }
 
+    /**
+     * ustawienie parametrow poczatkowych i odpalenie alg
+     */
     public void go()
     {
         num = 0;
         quickconvexhull();
     }
     
+    /**
+     * 
+     */
     private void quickconvexhull()
     {
-	// find two points: right (bottom) and left (top)
+        // znalezienie dwoch punktow: prawy dol i lewy gora
 	int r, l;
 	r = l = 0;
 	for ( int i = 1; i < points.length; i++ ) 
@@ -198,7 +275,8 @@ class QuickHullAlgorithm
 		l = i;
 	}
 
-	//System.out.println("l: "+l+", r: "+r);
+        if(Main.Test)
+            System.out.println("l: "+l+", r: "+r);
 
 	List<Integer> al1 = new ArrayList<Integer>();
 	List<Integer> al2 = new ArrayList<Integer>();
@@ -214,17 +292,24 @@ class QuickHullAlgorithm
 		al2.add(i);
 	}
 
-	reservePoints[num].X = points[r].X;
-	reservePoints[num].Y = points[r].Y;
+	resultPoints[num].X = points[r].X;
+	resultPoints[num].Y = points[r].Y;
 	num++;
 	quickhull(r, l, al1);
-	reservePoints[num].X = points[l].X;
-	reservePoints[num].Y = points[l].Y;
+	resultPoints[num].X = points[l].X;
+	resultPoints[num].Y = points[l].Y;
 	num++;
 	quickhull(l, r, al2);
     }
     
-    // check whether point p is right of line ab
+    
+    /**
+     * sprawdzamy czy pkt p jest po prawej od linii a-b
+     * @param a pkt
+     * @param b pkt
+     * @param p pkt
+     * @return wynik
+     */
     private int right(int a, int b, int p)
     {
 	return (points[a].X - points[b].X)
@@ -233,6 +318,13 @@ class QuickHullAlgorithm
                 *(points[a].Y - points[b].Y);
     }
     
+    /**
+     * odleglosc (kwadratowa) pkt p do lini a-b
+     * @param a pkt
+     * @param b pkt
+     * @param p pkt
+     * @return wynik
+     */
     private float distance(int a, int b, int p)
     {
 	float x, y, u;
@@ -243,6 +335,13 @@ class QuickHullAlgorithm
 	return ((x - (float)points[p].X)*(x - (float)points[p].X) + (y - (float)points[p].Y)*(y - (float)points[p].Y));
     }
     
+    /**
+     * najdalszy pkt 
+     * @param a pkt
+     * @param b pkt
+     * @param al lista pkt
+     * @return wynik;
+     */
     private int farthestpoint(int a, int b, List<Integer>al)
     {
 	float maxD, dis;
@@ -262,10 +361,18 @@ class QuickHullAlgorithm
 	return maxP;
     }
     
+    /**
+     * wlasciwy algorytm znajdowania pkt ...
+     * @param a pkt
+     * @param b pkt
+     * @param al lista pkt
+     */
     private void quickhull(int a, int b, List<Integer> al)
     {
-	//System.out.println("a:"+a+",b:"+b+" size: "+al.size());
-	if ( al.size() == 0 )
+	if(Main.Test)
+            System.out.println("a:"+a+",b:"+b+" size: "+al.size());
+	
+        if ( al.size() == 0 )
 	    return;
 
 	int c, p;
@@ -287,22 +394,42 @@ class QuickHullAlgorithm
 	}
 
 	quickhull(a, c, al1);
-	reservePoints[num].X = points[c].X;
-        reservePoints[num].Y = points[c].Y;
+	resultPoints[num].X = points[c].X;
+        resultPoints[num].Y = points[c].Y;
 	num++;
 	quickhull(c, b, al2);
     }
 }
 
 
-
+/**
+ * Klasa punkt
+ * zawiera potrzebne informacje do przechowania pkt 2D
+ * @author Michal
+ */
 class Point2D
 {
+    /**
+     * X
+     */
     public Integer X;
+    
+    /**
+     * Y
+     */
     public Integer Y;
 
+    /**
+     * kąt
+     */
     public Double Angle;
     
+    /**
+     * konstruktor inicjaluzujacy
+     * @param X X
+     * @param Y Y
+     * @param angle kąt
+     */
     public Point2D(Integer X, Integer Y, double angle)
     {
         this.X = X;
@@ -310,6 +437,11 @@ class Point2D
         this.Angle = angle;
     }
 
+    /**
+     * konstruktor inicjaluzujacy
+     * @param X X
+     * @param Y Y
+     */
     public Point2D(Integer X, Integer Y)
     {
         this.X = X;
@@ -318,14 +450,26 @@ class Point2D
     
 }
 
+/**
+ * klasa pkt 3D
+ * @author Michal
+ */
 class Point3D extends Point2D
 {
+    /**
+     * Z
+     */
     public Integer Z;
     
+    /**
+     * konstruktor inicjaluzujacy
+     * @param X X
+     * @param Y Y
+     * @param Z Z
+     */
     public Point3D(Integer X, Integer Y, Integer Z)
     {
         super(X, Y);
         this.Z = Z;
     }
-    
 }
