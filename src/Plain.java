@@ -370,21 +370,21 @@ class QuickHullAlgorithm
      */
     private int FarthestPoint(int a, int b, List<Integer>al)
     {
-	float maxD, dis;
-	int maxP, p;
-	maxD = -1;
-	maxP = -1;
+	float maxDistance, distance;
+	int maxPoint, point;
+	maxDistance = -1;
+	maxPoint = -1;
 	for ( int i = 0; i < al.size(); i++ ) {
-	    p = al.get(i);
-	    if ( (p == a) || (p == b) )
+	    point = al.get(i);
+	    if ( (point == a) || (point == b) )
 		continue;
-	    dis = DistanceFromLineToPoint(a, b, p);
-	    if ( dis > maxD ) {
-		maxD = dis;
-		maxP = p;
+	    distance = DistanceFromLineToPoint(a, b, point);
+	    if ( distance > maxDistance ) {
+		maxDistance = distance;
+		maxPoint = point;
 	    }
 	}
-	return maxP;
+	return maxPoint;
     }
     
     /**
