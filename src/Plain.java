@@ -114,7 +114,7 @@ public class Plain
             if(i.size() > 2)
             {
                 qh = new QuickHullAlgorithm(i);
-                qh.go();
+                qh.Go();
                 ip = new IrregularPolygonArea(i);
                 result.add(ip.Resolve());
             }
@@ -166,24 +166,24 @@ class IrregularPolygonArea
      */
     private void SortCornersInCounterClockwiseDirection()
     {
-        int n = points.length;
+        int ilosc = points.length;
         
-        double  cx = 0.0,
-                cy = 0.0;
+        double  centerX = 0.0,
+                centerY = 0.0;
         for(Point2D i : points)
         {
-            cx+=i.X;
-            cy+=i.Y;
+            centerX+=i.X;
+            centerY+=i.Y;
         }
         
-        cx/=(double)n;
-        cy/=(double)n;
+        centerX/=(double)ilosc;
+        centerY/=(double)ilosc;
         
         List<Point2D> newPoints = new ArrayList<>();
         
         for(Point2D i : points)
         {
-            double an = (Math.atan2(i.Y - cy, i.X - cx) + 2.0 * Math.PI) % (2.0 * Math.PI);
+            double an = (Math.atan2(i.Y - centerY, i.X - centerX) + 2.0 * Math.PI) % (2.0 * Math.PI);
             newPoints.add(new Point2D(i.X, i.Y, an));
         }
         
@@ -197,13 +197,13 @@ class IrregularPolygonArea
      */
     private double PolygonArea()
     {
-        int n = points.length;
+        int ilosc = points.length;
         double area = 0.0;
         
         int j = 0;
-        for(int i=0;i<n;++i)
+        for(int i=0;i<ilosc;++i)
         {
-            j = (i + 1) % n;
+            j = (i + 1) % ilosc;
             area += points[i].X * points[j].Y;
             area -= points[j].X * points[i].Y;
         }
@@ -215,7 +215,7 @@ class IrregularPolygonArea
 }
 
 /**
- * klasa reprezentujaca algorytm quickhull
+ * klasa reprezentujaca algorytm QuickHull
  * więcej o nim: https://pl.wikipedia.org/wiki/Quickhull
  * @author Michal
  */
@@ -253,53 +253,56 @@ class QuickHullAlgorithm
     /**
      * ustawienie parametrow poczatkowych i odpalenie alg
      */
-    public void go()
+    public void Go()
     {
         num = 0;
-        quickconvexhull();
+        QuickConvexHull();
     }
     
     /**
-     * 
+     * szukanie wypuklych punktow
      */
-    private void quickconvexhull()
+    private void QuickConvexHull()
     {
         // znalezienie dwoch punktow: prawy dol i lewy gora
-	int r, l;
-	r = l = 0;
+	int right, left;
+	right = left = 0;
 	for ( int i = 1; i < points.length; i++ ) 
         {
-	    if ( ( points[r].X > points[i].X ) || ( points[r].X == points[i].X && points[r].Y > points[i].Y ))
-		r = i;
-	    if ( ( points[l].X < points[i].X ) || ( points[l].X == points[i].X && points[l].Y < points[i].Y ))
-		l = i;
+	    if ( ( points[right].X > points[i].X ) 
+                    || ( points[right].X == points[i].X && points[right].Y > points[i].Y ))
+		right = i;
+	    if ( ( points[left].X < points[i].X ) 
+                    || ( points[left].X == points[i].X && points[left].Y < points[i].Y ))
+		left = i;
 	}
 
         if(Main.Test)
-            System.out.println("l: "+l+", r: "+r);
+            System.out.println("l: "+left+", r: "+right);
 
-	List<Integer> al1 = new ArrayList<Integer>();
-	List<Integer> al2 = new ArrayList<Integer>();
+	List<Integer> aLeft1 = new ArrayList<Integer>();
+	List<Integer> aLeft2 = new ArrayList<Integer>();
 
 	int upper;
-	for ( int i = 0; i < points.length; i++ ) {
-	    if ( (i == l) || (i == r) )
+	for ( int i = 0; i < points.length; i++ ) 
+        {
+	    if ( (i == left) || (i == right) )
 		continue;
-	    upper = right(r,l,i);
+	    upper = isOnRight(right,left,i);
 	    if ( upper > 0 )
-		al1.add(i);
+		aLeft1.add(i);
 	    else if ( upper < 0 )
-		al2.add(i);
+		aLeft2.add(i);
 	}
 
-	resultPoints[num].X = points[r].X;
-	resultPoints[num].Y = points[r].Y;
+	resultPoints[num].X = points[right].X;
+	resultPoints[num].Y = points[right].Y;
 	num++;
-	quickhull(r, l, al1);
-	resultPoints[num].X = points[l].X;
-	resultPoints[num].Y = points[l].Y;
+	QuickHull(right, left, aLeft1);
+	resultPoints[num].X = points[left].X;
+	resultPoints[num].Y = points[left].Y;
 	num++;
-	quickhull(l, r, al2);
+	QuickHull(left, right, aLeft2);
     }
     
     
@@ -310,7 +313,7 @@ class QuickHullAlgorithm
      * @param p pkt
      * @return wynik
      */
-    private int right(int a, int b, int p)
+    private int isOnRight(int a, int b, int p)
     {
 	return (points[a].X - points[b].X)
                 *(points[p].Y - points[b].Y)
@@ -325,7 +328,7 @@ class QuickHullAlgorithm
      * @param p pkt
      * @return wynik
      */
-    private float distance(int a, int b, int p)
+    private float DistanceFromLineToPoint(int a, int b, int p)
     {
 	float x, y, u;
 	u = (((float)points[p].X - (float)points[a].X)*((float)points[b].X - (float)points[a].X) + ((float)points[p].Y - (float)points[a].Y)*((float)points[b].Y - (float)points[a].Y)) 
@@ -342,7 +345,7 @@ class QuickHullAlgorithm
      * @param al lista pkt
      * @return wynik;
      */
-    private int farthestpoint(int a, int b, List<Integer>al)
+    private int FarthestPoint(int a, int b, List<Integer>al)
     {
 	float maxD, dis;
 	int maxP, p;
@@ -352,7 +355,7 @@ class QuickHullAlgorithm
 	    p = al.get(i);
 	    if ( (p == a) || (p == b) )
 		continue;
-	    dis = distance(a, b, p);
+	    dis = DistanceFromLineToPoint(a, b, p);
 	    if ( dis > maxD ) {
 		maxD = dis;
 		maxP = p;
@@ -367,7 +370,7 @@ class QuickHullAlgorithm
      * @param b pkt
      * @param al lista pkt
      */
-    private void quickhull(int a, int b, List<Integer> al)
+    private void QuickHull(int a, int b, List<Integer> al)
     {
 	if(Main.Test)
             System.out.println("a:"+a+",b:"+b+" size: "+al.size());
@@ -377,7 +380,7 @@ class QuickHullAlgorithm
 
 	int c, p;
 
-	c = farthestpoint(a, b, al);
+	c = FarthestPoint(a, b, al);
 
 	List<Integer> al1 = new ArrayList<Integer>();
 	List<Integer> al2 = new ArrayList<Integer>();
@@ -387,17 +390,17 @@ class QuickHullAlgorithm
 	    p = al.get(i);
 	    if ( (p == a) || (p == b) )
 		continue;
-	    if ( right(a,c,p) > 0 )
+	    if ( isOnRight(a,c,p) > 0 )
 		al1.add(p);
-	    else if ( right(c,b,p) > 0 )
+	    else if ( isOnRight(c,b,p) > 0 )
 		al2.add(p);
 	}
 
-	quickhull(a, c, al1);
+	QuickHull(a, c, al1);
 	resultPoints[num].X = points[c].X;
         resultPoints[num].Y = points[c].Y;
 	num++;
-	quickhull(c, b, al2);
+	QuickHull(c, b, al2);
     }
 }
 

@@ -9,28 +9,54 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
+ * @author Michal Franczyk
+ */
+
+/**
+ * glowna klasa programu
  * @author Michal
  */
 public class Main
 {
+    /**
+     * obiekt klasy plain
+     */
     public Plain PlainArea;
+    
+    /**
+     * do wypisow testowych
+     */
     public static Boolean Test = Boolean.FALSE;
     
+    /**
+     * main 
+     * @param args wejscie
+     */
     public static void main(String args[])
     {
-        String url = "jdbc:sqlserver://MICHAL-KOMPUTER\\SQLEXPRESS;databaseName=ztp;user=user;password=user";
+        String url = "";
+        try
+        {
+            url = args[0];
+        }
+        catch(Exception e)
+        {
+            url = "jdbc:sqlserver://MICHAL-KOMPUTER\\SQLEXPRESS;databaseName=ztp;user=user;password=user";
+        }
+        
         
         Main m = new Main();
         m.GetEndResult(m.PolaczDoBazy(url));
     }
     
+    /**
+     * polaczenie do bazy
+     * @param url url do bazy
+     * @return lista punktow z bazy
+     */
     private List<Point3D> PolaczDoBazy(String url)
     {
         List<Point3D> tempList = new ArrayList<>();
@@ -83,12 +109,17 @@ public class Main
         }
         catch (SQLException | NumberFormatException e)
         {
-            e.printStackTrace(); 
+            if(Main.Test)
+                e.printStackTrace(); 
         }
         
         return tempList;
     }
 
+    /**
+     * pobranie wyniku koncowego
+     * @param tempList lista punktow wejsciowych
+     */
     private void GetEndResult(List<Point3D> tempList)
     {
         List<Double> result;
